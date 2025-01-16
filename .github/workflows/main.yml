@@ -9,28 +9,32 @@ on:
 env:
   AZURE_WEBAPP_NAME: 'weather-api-test'
   AZURE_WEBAPP_PACKAGE_PATH: './publish'
-
+  PROJECT_PATH: './WebApplication1/WebApplication1.csproj'
 jobs:
   publish:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-
+      
+      # Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore
-        run: dotnet restore ./WebApplication1.sln
+      # Restore dependencies
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
 
-      - name: Build
-        run: dotnet build ./WebApplication1.sln --configuration Release --no-restore
+      # Build entry project
+      - name: Build Entry Project
+        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
 
-      - name: Publish
-        run: dotnet publish ./WebApplication1.sln --configuration Release --no-build --output ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-
+      # Publish entry project
+      - name: Publish Entry Project
+        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --no-build --output ./publish    
+      
       - name: Deploy to Azure Web App
         uses: Azure/webapps-deploy@v2
         with:
